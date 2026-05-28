@@ -1,5 +1,4 @@
 # 相对论流体力学一般Synge型状态方程高阶熵稳定格式 (JSC 2024)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Paper](https://img.shields.io/badge/Paper-JSC%202024-blue.svg)](https://doi.org/10.1007/s10915-023-02440-x)
 [![DOI](https://img.shields.io/badge/DOI-10.1007/s10915--023--02440--x-green.svg)](https://doi.org/10.1007/s10915-023-02440-x)
 
@@ -58,7 +57,7 @@
    ```bash
    ./main
    ```
-### 输出说明
+## 输出说明
 - 程序运行完成后，会在当前目录下生成数值结果文件：`[算例名称].dat`
 - 输出格式：16 位科学计数法，每行依次为`密度 速度 压强`
 - 示例输出片段：
@@ -67,35 +66,62 @@
   2.9999999999998903e+00 -4.9999999999999922e-01 5.0000000000000355e-01 4.9999999999998277e+00
   2.9999999999998885e+00 -4.9999999999999939e-01 5.0000000000000344e-01 4.9999999999998224e+00
   ```
-### 代码结构
+## 代码结构
 ```plaintext
 ExampleXX/
-├── src/                     # 核心源代码目录
-│   ├── main.cpp             # 程序入口，定义网格大小和算法阶数
-│   ├── Euler1D.h/cpp        # 主计算类，包含初始化、演化、边界条件和输出
-│   ├── flux.h               # 本文提出的熵守恒/熵稳定通量实现
-│   ├── reconstruction.h     # WENO/ENO重构实现
-│   ├── boundary.h           # 边界条件处理（流出/周期/反射）
-│   ├── eos.h                # 四种Synge型物态方程实现
-│   └── utils.h              # 通用工具函数（原语-守恒变量转换等）
-├── CMakeLists.txt           # CMake构建配置文件
-├── plot_results.m           # MATLAB可视化脚本
-├── data/                    # 预计算的论文结果数据
-│   ├── density.dat          # 密度数据
-│   ├── velocity.dat         # 速度数据
-│   └── pressure.dat         # 压强数据
-├── figures/                 # 论文中对应的结果图
-│   ├── result.eps           # 矢量图（用于论文发表）
-│   └── result.png           # 预览图
-└── README.md                # 单个算例的详细说明
+├── src/                         # 核心源代码目录
+│   ├── Euler1DInit.cpp          # 程序入口，定义网格大小和算法阶数，包含边界条件处理、初始化、赋初值和输出
+│   ├── Euler1D.h/cpp            # 主计算类，包含时间演化、熵守恒/熵稳定通量实现
+│   ├── defineGlobalVariable.h   # 宏定义、类成员变量和成员函数的声明
+│   ├── LimiterRestrction.h/cpp  # WENO/ENO重构实现
+│   ├── setFlux.h/cpp            # 计算通量函数
+│   ├── ConVPriVEntrV.h/cpp      # 守恒变量、原始变量、熵变量之间的相互转化
+│   └──EulerEigValVec.h/cpp      # 计算最大特征速度和特征向量矩阵
+├── CMakeLists.txt               # CMake构建配置文件
+├── plot_results.m               # MATLAB可视化脚本
+├── data/                        # 预计算的论文结果数据
+│   ├── numsol.dat               # 数值解
+│   ├── LF100000.dat             # 参考解/精确解
+│   └── tolEntr.dat              # 离散总熵随时间变化
+├── figure/                      # 论文中对应的结果图
+│   ├── result.eps               # 矢量图
+│   └── result.jpg               # 预览图
 ```
-### 结果展示
-## 2D Riemann 问题（Example10）
+## 结果展示
+### 2D Riemann 问题（Example10）
 四象限初始条件下的螺旋结构模拟，展示了本文方法对复杂接触间断的高分辨率捕捉能力。
 
-## 激波 - 气泡相互作用（Example13）
+<table align="center" cellspacing="20">
+  <tr>
+    <td align="center">
+      <img src="./Example10/RHD2D_RP_1_EOS_2_eigmat/figure/RHD2D_RP_1_density_contour_EOS_2.jpg" width="400">
+      <br><b>(a) lnρ 密度等值线</b>
+    </td>
+    <td align="center">
+      <img src="./Example10/RHD2D_RP_1_EOS_2_eigmat/figure/RHD2D_RP_1_pressure_contour_EOS_2.jpg" width="400">
+      <br><b>(b) ln p 压强等值线</b>
+    </td>
+  </tr>
+</table>
+
+
+### 激波 - 气泡相互作用（Example13）
 大尺度工程问题模拟，验证了算法在长时间、大规模计算中的稳定性和鲁棒性。
-### 技术栈
+
+<table align="center" cellspacing="20">
+  <tr>
+    <td align="center">
+      <img src="./Example13/RHD2D_shock_bubble_EOS_eigmat/figure/RHD_shockbb_EOS_1c_density.jpg" width="400">
+      <br><b>(a) 情景一</b>
+    </td>
+    <td align="center">
+      <img src="./Example13/RHD2D_shock_bubble_2_EOS_eigmat/figure/RHD_shockbb_2_EOS_1c_density.jpg" width="400">
+      <br><b>(b) 情景二</b>
+    </td>
+  </tr>
+</table>
+
+## 技术栈
 - **编程语言**：C++11（核心算法实现）、MATLAB（数据可视化）
 - **构建工具**：CMake
 - **数值方法**：有限差分法、WENO/ENO 重构、SSP-RK3/RRK3 时间积分
